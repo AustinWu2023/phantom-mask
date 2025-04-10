@@ -1,44 +1,48 @@
+using FastEndpoints;
+using FastEndpoints.Swagger;
+using Microsoft.EntityFrameworkCore;
+using phantom_mask.Entities;
+using phantom_mask.Services.Seeders;
+using phantom_mask.Share.Options;
+using phantom_mask.Utilities;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument();
+
+// Add AppDbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    new MySqlServerVersion(new Version(8, 0, 30)),
+    mySqlOptions => mySqlOptions.EnableRetryOnFailure()
+));
+
+// µù¥U SeedDataOptions and SeedDataImporter
+builder.Services.Configure<SeedDataOptions>(builder.Configuration.GetSection("SeedData"));
+builder.Services.AddScoped<SeedDataImporter>();
+
+builder.Services.AddScoped<IOpeningHourParser, OpeningHourParser>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+// °õ¦æ SeedDataImporter
+using (var scope = app.Services.CreateScope()) {
+
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    var seeder = scope.ServiceProvider.GetRequiredService<SeedDataImporter>();
+    await seeder.ImportIfEmptyAsync();
 }
+
+
+app.UseFastEndpoints();
+app.UseOpenApi();
+app.UseSwaggerUi();
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
