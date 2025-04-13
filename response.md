@@ -2,32 +2,57 @@
 > The Current content is an **example template**; please edit it to fit your style and content.
 ## A. Required Information
 ### A.1. Requirement Completion Rate
-- [x] List all pharmacies open at a specific time and on a day of the week if requested.
-  - Implemented at xxx API.
-- [x] List all masks sold by a given pharmacy, sorted by mask name or price.
-  - Implemented at xxx API.
-- [x] List all pharmacies with more or less than x mask products within a price range.
-  - Implemented at xxx API.
-- [x] The top x users by total transaction amount of masks within a date range.
-  - Implemented at xxx API.
-- [x] The total number of masks and dollar value of transactions within a date range.
-  - Implemented at xxx API.
-- [x] Search for pharmacies or masks by name, ranked by relevance to the search term.
-  - Implemented at xxx API.
-- [x] Process a user purchases a mask from a pharmacy, and handle all relevant data changes in an atomic transaction.
-  - Implemented at xxx API.
-### A.2. API Document
-> Please describe how to use the API in the API documentation. You can edit by any format (e.g., Markdown or OpenAPI) or free tools (e.g., [hackMD](https://hackmd.io/), [postman](https://www.postman.com/), [google docs](https://docs.google.com/document/u/0/), or  [swagger](https://swagger.io/specification/)).
 
-Import [this](#api-document) json file to Postman.
+- [v] **List all pharmacies open at a specific time and on a day of the week if requested.**
+  - Implemented at `GET /pharmacies/open`
+
+- [v] **List all masks sold by a given pharmacy, sorted by mask name or price.**
+  - Implemented at `GET /pharmacies/masks`
+
+- [v] **List all pharmacies with more or less than x mask products within a price range.**
+  - Implemented at `GET /pharmacies/filter`
+
+- [v] **The top x users by total transaction amount of masks within a date range.**
+  - Implemented at `GET /users/top`
+
+- [v] **The total number of masks and dollar value of transactions within a date range.**
+  - Implemented at `GET /transactions/summary`
+
+- [v] **Search for pharmacies or masks by name, ranked by relevance to the search term.**
+  - Implemented at `GET /search`
+
+- [v] **Process a user purchases a mask from a pharmacy, and handle all relevant data changes in an atomic transaction.**
+  - Implemented at `POST /purchase`
+
+### A.2. API Document
+
+The API documentation is auto-generated using Swagger and is available at:
+
+```
+http://localhost:5000/swagger
+```
+
+This Swagger UI provides detailed request/response schemas, query parameter usage, and allows for live testing.
+
+You may also import the OpenAPI JSON file into Postman:
+- [Download Swagger/OpenAPI JSON](http://localhost:5000/swagger/v1/swagger.json) *(when container is running)*
 
 ### A.3. Import Data Commands
-Please run these two script commands to migrate the data into the database.
+
+All data seeding is handled via JSON files and automatically executed at startup.
+
+However, to manually import data:
 
 ```bash
-$ rake import_data:pharmacies[PATH_TO_FILE]
-$ rake import_data:users[PATH_TO_FILE]
+# Run inside container
+$ docker exec -it phantom-mask-api sh
+$ dotnet phantom-mask.dll seed pharmacy /app/Data/SeedData/pharmacies.json
+$ dotnet phantom-mask.dll seed user /app/Data/SeedData/users.json
 ```
+
+Alternatively, update `SeedDataImporter` to run standalone.
+
+---
 ## B. Bonus Information
 
 >  If you completed the bonus requirements, please fill in your task below.
@@ -42,32 +67,52 @@ bundle exec rspec spec
 ```
 
 ### B.2. Dockerized
-Please check my Dockerfile / docker-compose.yml at [here](#dockerized).
+The project is fully containerized using Docker + Docker Compose.
 
-On the local machine, please follow the commands below to build it.
+**Repository Files:**
+- Dockerfile
+- docker-compose.yml
+
+To build and run:
 
 ```bash
-$ docker build --build-arg ENV=development -p 80:3000 -t my-project:1.0.0 .  
-$ docker-compose up -d
-
-# go inside the container, run the migrate data command.
-$ docker exec -it my-project bash
-$ rake import_data:pharmacies[PATH_TO_FILE] 
-$ rake import_data:user[PATH_TO_FILE]
+docker-compose up --build
 ```
 
-### B.3. Demo Site Url
+Visit Swagger UI at:
+```
+http://localhost:5000/swagger
+```
 
-The demo site is ready on [my AWS demo site](#demo-site-url); you can try any APIs on this demo site.
+MySQL port is mapped to host 3308 to avoid conflicts:
+```yaml
+ports:
+  - "3308:3306"
+```
+
+Ensure your `.env` or `appsettings.json` uses:
+```json
+"Server=mysql;Port=3306;Database=phantom_mask;User=test;Password=Test@123456;"
+```
+
+### B.3. Demo Site URL
+
+*(Optional placeholder)*: Available upon request or demo via local container.
+
+---
 
 ## C. Other Information
 
 ### C.1. ERD
 
-My ERD [erd-link](#erd-link).
+The ERD is available at: [ERD Diagram](#) *(insert image link or PDF)*
 
 ### C.2. Technical Document
 
-For frontend programmer reading, please check this [technical document](technical-document) to know how to operate those APIs.
+A separate technical walkthrough is available, including:
+- Folder structure (e.g. `Features/Pharmacies`, `Users/Purchase`)
+- Layered architecture and service separation
+- Domain-driven design principles (optional)
+- Docker deployment strategy
 
-- --
+[View Technical Document](#) *(insert Notion / hackMD / PDF link)*
