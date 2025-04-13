@@ -8,7 +8,7 @@ namespace phantom_mask.Features.Users.Top {
         public required AppDbContext DbContext { get; set; }
 
         public override void Configure() {
-            Post("/users/top");
+            Get("/users/top");
             AllowAnonymous();
             Summary(s => {
                 s.Summary = "The top x users by total transaction amount of masks within a date range.";

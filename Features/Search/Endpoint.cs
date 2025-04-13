@@ -7,7 +7,7 @@ namespace phantom_mask.Features.Search {
         public required AppDbContext DbContext { get; set; }
 
         public override void Configure() {
-            Post("/search");
+            Get("/search");
             AllowAnonymous();
             Summary(s => {
                 s.Summary = "Search for pharmacies or masks by name, ranked by relevance to the search term.";

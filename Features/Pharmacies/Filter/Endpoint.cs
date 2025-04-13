@@ -6,7 +6,7 @@ namespace phantom_mask.Features.Pharmacies.Filter {
     internal sealed class Endpoint : Endpoint<Request, Response> {
         public required AppDbContext DbContext { get; set; }
         public override void Configure() {
-            Post("/pharmacies/filter");
+            Get("/pharmacies/filter");
             AllowAnonymous();
             Summary(s => {
                 s.Summary = "List all pharmacies with more or less than x mask products within a price range.";

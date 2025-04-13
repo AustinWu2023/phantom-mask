@@ -6,7 +6,7 @@ namespace phantom_mask.Features.Transactions.Summary {
     internal sealed class Endpoint : Endpoint<Request, Response> {
         public required AppDbContext DbContext { get; set; }
         public override void Configure() {
-            Post("/transactions/summary");
+            Get("/transactions/summary");
             AllowAnonymous();
             Summary(s => {
                 s.Summary = "The total amount of masks and dollar value of transactions within a date range.";
